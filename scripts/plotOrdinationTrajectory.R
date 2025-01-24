@@ -20,11 +20,12 @@
                      preyCutoff = preyCutoff, familyAgg = familyAggTS, regionAgg = "yes")
   
   # Now plot, including trajectories
-  data.scores <- as.data.frame(scores(nmdsTS$nmds)[[1]])
+  data.scores <- as.data.frame(scores(nmdsTS$nmds) [[1]])
   # Add the predator name, region, year
   data.scores$grp <- nmdsTS$accumSub$Predator_Species
   data.scores$region <- nmdsTS$accumSub$Region
   data.scores$year <- nmdsTS$accumSub$Year
+  
   # Sort
   data.scores <- data.scores[order(data.scores$grp, data.scores$year),]
   data.scores$grp <- reorder.factor(data.scores$grp, new.order=spp)
@@ -38,7 +39,7 @@
                        "Short-Beaked Common Dolphin","Northern Right Whale Dolphin")
   paletteSpecies$grp <- reorder.factor(paletteSpecies$grp, new.order=schoeners_order)
   paletteSpecies <-paletteSpecies[order(paletteSpecies$grp),]
-  # Generate an ordered color palette
+  # generate an ordered color palette
   paletteSp <- paletteSpecies$col # Groups predators by color 
   data.scores$grp <- reorder.factor(data.scores$grp, new.order=schoeners_order)
   
@@ -51,29 +52,29 @@
   # Reorder
   data.scores.pad <- arrange(data.scores.pad, grp, year)
   
-  # Get the last year of good data to index where the arrow head will go in plot
+  # Get the last year of good data to index where the arow head will go in plot
   maxYr <- aggregate(year ~ grp, data.scores, FUN = max, na.rm = TRUE)
   maxYr$lastYr <- maxYr$year
   data.scores <- left_join(data.scores, maxYr, by = c("grp", "year"))
   data.scores$lastYr <- ifelse(is.na(data.scores$lastYr), "no", "yes")
   
-  # Generate temporal and species subsets for trajectory plots
-  # Subset only including data 1998-2015
-  data.scores2 <- subset(data.scores, year < 2016)
-  data.scores.pad2 <- subset(data.scores.pad, year < 2016)
+  # generate temporal and species subsets for trajectory plots
+  # subset only including data 1998-2015
+  data.scores2 <- subset(data.scores, year<2016)
+  data.scores.pad2 <- subset(data.scores.pad, year<2016)
   
-  # Subset only including swordfish and bluefin data prior up to 2015
-  data.scores3 <- subset(data.scores, year < 2016 & (grp == "Bluefin tuna"| grp == "Broadbill Swordfish"))
-  data.scores.pad3 <- subset(data.scores.pad2, grp == "Bluefin tuna"| grp == "Broadbill Swordfish")
+  # subset only including swordfish and bluefin data prior up to 2015
+  data.scores3 <- subset(data.scores,year<2016&(grp == "Bluefin tuna"| grp == "Broadbill Swordfish"))
+  data.scores.pad3 <- subset(data.scores.pad2,grp == "Bluefin tuna"| grp == "Broadbill Swordfish")
   
-  # Subset only including swordfish and bluefin data prior from 2015 and beyond 
-  data.scores4 <- subset(data.scores,year > 2014 & (grp == "Bluefin tuna"| grp == "Broadbill Swordfish"))
-  data.scores.pad4 <- subset(data.scores.pad,year > 2014 & (grp == "Bluefin tuna"| grp == "Broadbill Swordfish"))
+  # subset only including swordfish and bluefin data prior from 2015 and beyond 
+  data.scores4 <- subset(data.scores,year>2014 & (grp == "Bluefin tuna"| grp == "Broadbill Swordfish"))
+  data.scores.pad4 <- subset(data.scores.pad,year>2014 & (grp == "Bluefin tuna"| grp == "Broadbill Swordfish"))
   
-  # Create subset palette for the swordgish/bluefin comparison
+  # create subset palette for the swordgish/bluefin comparison
   paletteSpecies2 <- subset(paletteSpecies, grp %in% data.scores3$grp) 
   paletteSp2 <- paletteSpecies2$col # Groups predators by color 
-
+  
   # Generate dataframe to plot vectors of families driving paritioning
   # Adding labels to family groups in ordination vectors that contribute > X dissim
   # Get the species matrix without ID cols
@@ -90,11 +91,13 @@
   NMDS.fam.scrs$hyp <- sqrt(NMDS.fam.scrs$NMDS1 ^ 2 + NMDS.fam.scrs$NMDS2 ^ 2)
   NMDS.fam.scrs2 <- subset(NMDS.fam.scrs, hyp >= 0.425) # Cutoff for important prey, imp on either axis.
   
-  data.scores2$subgrp <- ifelse(data.scores2$grp == "Common Thresher Shark"|data.scores2$grp == "Broadbill Swordfish"|
-                                  data.scores2$grp == "Short-Beaked Common Dolphin", 1,
+  #
+  data.scores2$subgrp <- ifelse(data.scores2$grp == "Common Thresher Shark"|data.scores2$grp == "Broadbill Swordfish"|data.scores2$grp == "Short-Beaked Common Dolphin",1,
                                 ifelse(data.scores2$grp == "Albacore"|data.scores2$grp == "Bluefin tuna",2,
-                                       ifelse(data.scores2$grp == "Long-Beaked Common Dolphin"|data.scores2$grp == "Blue Shark"|
-                                                data.scores2$grp == "Shortfin Mako Shark", 3, "check")))
+                                       ifelse(data.scores2$grp == "Long-Beaked Common Dolphin"|data.scores2$grp == "Blue Shark"|data.scores2$grp == "Shortfin Mako Shark",3,"check")))
+  
+  # add a custom abbreviated year label
+  data.scores2$year_lab <- paste0("'",substr(as.character(data.scores2$year), 3, 4))
                                 
   # Plot annual trajectories on scatter plot and facet by predator group
   pTS1 <- ggplot() + 
