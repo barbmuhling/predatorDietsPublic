@@ -84,6 +84,19 @@ plotSpeciesDissimilarity <- function(nmdsTS, savePlot) {
   colnames(sdOut) <- c("species1", "species2", "sdWithinSp1", "sdWithinSp2", "meanWithinSp1", "meanWithinSp2", 
                        "sdAcrossBothSp","meanAcrossBothSp", "noOverlappingYrs")
   
+  # Run Welch's ANOVA on ranks of within group SD of dissimilarity
+  # convert between groups SDs to ranks
+  sdOut$acrossSD_rank <- rank(sdOut$sdAcrossBothSp)
+  
+  #Examine differences in ranked SD of dissimilarity between predator pairs using Welch's ANOVA
+  # make sure var.equal term is set to FALSE so that you are not assuming equal variances among copmparison groups
+  WelchsANOVA <- oneway.test(acrossSD_rank ~ species1,
+                             data = sdOut,
+                             var.equal = FALSE)
+  
+  # print result
+  print(WelchsANOVA)
+  
   # Reshape so that we're isolating each species (whether it was sp1 or sp 2)
   sdOutLong <- pivot_longer(sdOut[c("species1", "species2", "sdWithinSp1",  "sdAcrossBothSp")], 
                     cols = c( "sdWithinSp1","sdAcrossBothSp"), 
